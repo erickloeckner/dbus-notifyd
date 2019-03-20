@@ -25,10 +25,13 @@
 #define STDOUT_FILENO 1
 #endif
 
+//~ char * match;
+//~ char * command;
 
-//~ char * match = "foo";
-char * match;
-char * command;
+typedef struct{
+  char *match;
+  char *command;
+} option_t;
 
 static DBusHandlerResult
 monitor_filter_func (DBusConnection     *connection,
@@ -36,10 +39,11 @@ monitor_filter_func (DBusConnection     *connection,
                      void               *user_data)
 {
   //~ long sec = 0, usec = 0;
-
   //~ _dbus_get_real_time (&sec, &usec);
+  
+  option_t *opt_in = user_data;
 
-  print_message (message, match, command);
+  print_message (message, opt_in->match, opt_in->command);
   
   if (dbus_message_is_signal (message,
                               DBUS_INTERFACE_LOCAL,
@@ -118,8 +122,8 @@ main (int argc, char *argv[])
   DBusConnection *connection;
   DBusError error;
   DBusBusType type = DBUS_BUS_SESSION;
-  match = "Inbound Call";
-  command = "/etc/dbus-notifyd/dbus-notifyd_command.sh";
+  //~ match = "Inbound Call";
+  //~ command = "/etc/dbus-notifyd/dbus-notifyd_command.sh";
   DBusHandleMessageFunction filter_func = monitor_filter_func;
   char *address = NULL;
   dbus_bool_t seen_bus_type = FALSE;
@@ -129,6 +133,9 @@ main (int argc, char *argv[])
   numFilters = 1;
   char *filter_string = "eavesdrop=true,type='method_call',interface='org.freedesktop.Notifications',member='Notify'";
   char * filters[] = {filter_string};
+  
+  option_t options = {"Inbound Call", "/etc/dbus-notifyd/dbus-notifyd_command.sh"};
+  option_t *options_p = &options;
 
 #ifdef DBUS_WIN
   setvbuf (stdout, NULL, _IONBF, 0);
@@ -172,7 +179,7 @@ main (int argc, char *argv[])
 
   if (!dbus_connection_add_filter (connection, filter_func,
                                    //~ _DBUS_INT_TO_POINTER (binary_mode), NULL))
-                                   NULL, NULL))
+                                   options_p, NULL))
     {
       fprintf (stderr, "Couldn't add filter!\n");
       exit (1);
