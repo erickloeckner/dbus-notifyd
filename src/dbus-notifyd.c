@@ -1,10 +1,10 @@
-//D-Bus Daemon
+//D-Bus Notification Daemon
 //
-// Raspbian compilation:
-// gcc dbus-notifyd-1.0.0.c dbus-print-message.c tool-common.c -o dbus-notifyd-1.0.0 -I /usr/include/dbus-1.0 -I /usr/lib/arm-linux-gnueabihf/dbus-1.0/include -I /usr/lib/dbus-1.0/include -l dbus-1
+// Raspbian compilation, run from repo root directory:
+// gcc src/dbus-notifyd.c src/dbus-print-message.c src/tool-common.c -o dbus-notifyd -I /usr/include/dbus-1.0 -I /usr/lib/arm-linux-gnueabihf/dbus-1.0/include -I /usr/lib/dbus-1.0/include -l dbus-1
 //
-// Cent 7 compilation:
-// gcc dbus-notifyd.c dbus-print-message.c tool-common.c -o dbus-notifyd -I /usr/include/dbus-1.0 -I /usr/lib64/dbus-1.0/include -l dbus-1
+// Cent 7 compilation, run from repo root directory:
+// gcc src/dbus-notifyd.c src/dbus-print-message.c src/tool-common.c -o dbus-notifyd -I /usr/include/dbus-1.0 -I /usr/lib64/dbus-1.0/include -l dbus-1
 
 //#include <config.h>
 
