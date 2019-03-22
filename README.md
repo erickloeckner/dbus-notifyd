@@ -5,9 +5,9 @@ The purpose is to run a script when a call comes in from the software phone syst
 
 # INSALLATION
 
-sudo wget -O /usr/local/bin/dbus-notifyd https://github.com/erickloeckner/dbus-notifyd/raw/master/dbus-notifyd
-sudo chmod +x /usr/local/bin/dbus-notifyd
-sudo mkdir /etc/dbus-notifyd/
-sudo wget -O /etc/dbus-notifyd/dbus-notifyd_command.sh https://github.com/erickloeckner/dbus-notifyd/raw/master/etc/dbus-notifyd_command.sh
-sudo chmod +x /etc/dbus-notifyd/dbus-notifyd_command.sh
-sudo wget -O /etc/dbus-notifyd/ring.wav https://github.com/erickloeckner/dbus-notifyd/blob/master/etc/ring.wav?raw=true
+```sudo wget -O /usr/local/bin/dbus-notifyd https://github.com/erickloeckner/dbus-notifyd/raw/master/dbus-notifyd```
+```sudo chmod +x /usr/local/bin/dbus-notifyd```
+```sudo mkdir /etc/dbus-notifyd/```
+```sudo wget -O /etc/dbus-notifyd/dbus-notifyd_command.sh https://github.com/erickloeckner/dbus-notifyd/raw/master/etc/dbus-notifyd_command.sh```
+```sudo chmod +x /etc/dbus-notifyd/dbus-notifyd_command.sh```
+```sudo wget -O /etc/dbus-notifyd/ring.wav https://github.com/erickloeckner/dbus-notifyd/blob/master/etc/ring.wav?raw=true```
