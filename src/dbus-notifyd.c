@@ -113,9 +113,7 @@ main (int argc, char *argv[])
   DBusError error;
   DBusBusType type = DBUS_BUS_SESSION;
   DBusHandleMessageFunction filter_func = monitor_filter_func;
-  char *address = NULL;
-  int i = 0, j = 0, numFilters = 0;
-  numFilters = 1;
+  int numFilters = 1;
   char *filter_string = "eavesdrop=true,type='method_call',interface='org.freedesktop.Notifications',member='Notify'";
   char * filters[] = {filter_string};
   
