@@ -34,7 +34,6 @@ static int
 print_iter (DBusMessageIter *iter, char * match)
 {
   int flag = 0;
-  //~ char * match = "foo";
   
   do
     {
@@ -74,12 +73,8 @@ print_message (DBusMessage *message, char * match, char * command)
 {
   DBusMessageIter iter;
   const char *sender;
-  const char *destination;
-  int message_type;
 
-  message_type = dbus_message_get_type (message);
   sender = dbus_message_get_sender (message);
-  destination = dbus_message_get_destination (message);
   
   if (strcmp(sender, "org.freedesktop.DBus")) {
     dbus_message_iter_init (message, &iter);
