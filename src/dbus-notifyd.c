@@ -6,10 +6,6 @@
 // Cent 7 compilation, run from repo root directory:
 // gcc src/dbus-notifyd.c src/dbus-print-message.c src/tool-common.c -o dbus-notifyd -I /usr/include/dbus-1.0 -I /usr/lib64/dbus-1.0/include -l dbus-1
 
-//#include <config.h>
-
-//#include "dbus/dbus-internals.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,9 +21,6 @@
 #define STDOUT_FILENO 1
 #endif
 
-//~ char * match;
-//~ char * command;
-
 typedef struct{
   char *match;
   char *command;
@@ -38,9 +31,6 @@ monitor_filter_func (DBusConnection     *connection,
                      DBusMessage        *message,
                      void               *user_data)
 {
-  //~ long sec = 0, usec = 0;
-  //~ _dbus_get_real_time (&sec, &usec);
-  
   option_t *opt_in = user_data;
 
   print_message (message, opt_in->match, opt_in->command);
@@ -122,14 +112,9 @@ main (int argc, char *argv[])
   DBusConnection *connection;
   DBusError error;
   DBusBusType type = DBUS_BUS_SESSION;
-  //~ match = "Inbound Call";
-  //~ command = "/etc/dbus-notifyd/dbus-notifyd_command.sh";
   DBusHandleMessageFunction filter_func = monitor_filter_func;
   char *address = NULL;
-  dbus_bool_t seen_bus_type = FALSE;
-  //~ BinaryMode binary_mode = BINARY_MODE_NOT;
   int i = 0, j = 0, numFilters = 0;
-  //~ char **filters = NULL;
   numFilters = 1;
   char *filter_string = "eavesdrop=true,type='method_call',interface='org.freedesktop.Notifications',member='Notify'";
   char * filters[] = {filter_string};
@@ -148,95 +133,30 @@ main (int argc, char *argv[])
   connection = dbus_bus_get (type, &error);
   if (connection == NULL)
     {
-      const char *where;
-      if (address != NULL)
-        where = address;
-      else
-        {
-          switch (type)
-            {
-            case DBUS_BUS_SYSTEM:
-              where = "system bus";
-              break;
-            case DBUS_BUS_SESSION:
-              where = "session bus";
-              break;
-            case DBUS_BUS_STARTER:
-            default:
-              /* We don't set type to anything else */
-              //_dbus_assert_not_reached ("impossible bus type");
-              ;
-            }
-        }
-      fprintf (stderr, "Failed to open connection to %s: %s\n",
-               where,
-               error.message);
+      fprintf (stderr, "Failed to open connection to session bus: %s\n", error.message);
       dbus_error_free (&error);
       exit (1);
     }
 
   dbus_connection_set_route_peer_messages (connection, TRUE);
 
-  if (!dbus_connection_add_filter (connection, filter_func,
-                                   //~ _DBUS_INT_TO_POINTER (binary_mode), NULL))
-                                   options_p, NULL))
+  if (!dbus_connection_add_filter (connection, filter_func, options_p, NULL))
     {
       fprintf (stderr, "Couldn't add filter!\n");
       exit (1);
     }
 
-  if (become_monitor (connection, numFilters,
-                      (const char * const *) filters))
-    {
-      /* no more preparation needed */
+  if (!become_monitor (connection, numFilters, (const char * const *) filters)) {
+    if (dbus_error_is_set (&error)) {
+      fprintf (stderr, "Failed to become monitor: %s\n", error.message);
+      dbus_error_free (&error);
+      exit (1);
     }
-  //~ else if (numFilters)
-    //~ {
-      //~ size_t offset = 0;
-      //~ for (i = 0; i < j; i++)
-        //~ {
-          //~ dbus_bus_add_match (connection, filters[i] + offset, &error);
-          //~ if (dbus_error_is_set (&error) && i == 0 && offset == 0)
-            //~ {
-              //~ /* We might be talking to a pre-1.5.6 dbus-daemon
-              //~ * which wouldn't understand eavesdrop=true.
-              //~ * If this works, carry on with offset > 0
-              //~ * on the remaining iterations. */
-              //~ offset = strlen (EAVESDROPPING_RULE) + 1;
-              //~ dbus_error_free (&error);
-              //~ dbus_bus_add_match (connection, filters[i] + offset, &error);
-            //~ }
-
-          //~ if (dbus_error_is_set (&error))
-            //~ {
-              //~ fprintf (stderr, "Failed to setup match \"%s\": %s\n",
-                       //~ filters[i], error.message);
-              //~ dbus_error_free (&error);
-              //~ exit (1);
-            //~ }
-          //~ free(filters[i]);
-        //~ }
-    //~ }
-  //~ else
-    //~ {
-      //~ dbus_bus_add_match (connection,
-                          //~ EAVESDROPPING_RULE,
-                          //~ &error);
-      //~ if (dbus_error_is_set (&error))
-        //~ {
-          //~ dbus_error_free (&error);
-          //~ dbus_bus_add_match (connection,
-                              //~ "",
-                              //~ &error);
-          //~ if (dbus_error_is_set (&error))
-            //~ goto lose;
-        //~ }
-    //~ }
+  }
+  
+  printf("DBus Notification Daemon\nWatching for \"%s\"\n", options_p->match);
 
   while (dbus_connection_read_write_dispatch(connection, -1))
     ;
   exit (0);
- lose:
-  fprintf (stderr, "Error: %s\n", error.message);
-  exit (1);
 }
