@@ -20,15 +20,13 @@
  *
  */
 
-//#include <config.h>
 #include "dbus-print-message.h"
 
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
-
 #include <stdlib.h>
-//#include "config.h"
+#include <time.h>
 
 #include "tool-common.h"
 
@@ -36,7 +34,6 @@ static int
 print_iter (DBusMessageIter *iter, char * match)
 {
   int flag = 0;
-  //~ char * match = "foo";
   
   do
     {
@@ -50,21 +47,20 @@ print_iter (DBusMessageIter *iter, char * match)
         case DBUS_TYPE_STRING:
           {
             char *val;
+            time_t current_time;
+            char buf[64];
+                        
+            current_time = time(NULL);
+            strftime(buf, sizeof buf, "%Y/%b/%d %X%z - ", localtime(&current_time));
             dbus_message_iter_get_basic (iter, &val);
-            //~ if (!literal)
-              //~ printf ("string \"");
-            //~ printf ("%s", val);
-            //~ if (!literal)
-              //~ printf ("\"\n");
-              
-            //~ printf ("%s\n", val);
+
             if (!strcmp(val, match)) {
               flag++;
+              printf ("%s%s\n", buf, val);
             }
             break;
           }
         default:
-          //~ printf (" (dbus-monitor too dumb to decipher arg type '%c')\n", type);
           break;
         }
     } while (dbus_message_iter_next (iter));
@@ -77,12 +73,8 @@ print_message (DBusMessage *message, char * match, char * command)
 {
   DBusMessageIter iter;
   const char *sender;
-  const char *destination;
-  int message_type;
 
-  message_type = dbus_message_get_type (message);
   sender = dbus_message_get_sender (message);
-  destination = dbus_message_get_destination (message);
   
   if (strcmp(sender, "org.freedesktop.DBus")) {
     dbus_message_iter_init (message, &iter);
