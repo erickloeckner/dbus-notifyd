@@ -105,7 +105,7 @@ main(int argc, char *argv[]) {
   DBusBusType type = DBUS_BUS_SESSION;
   DBusHandleMessageFunction filter_func = monitor_filter_func;
   int numFilters = 1;
-  char *filter_string = "eavesdrop=true,type='method_call',interface='org.freedesktop.Notifications',member='Notify'";
+  char *filter_string = "type='method_call',interface='org.freedesktop.Notifications',member='Notify'";
   char *filters[] = {filter_string};
   
   char *match_in = NULL;
