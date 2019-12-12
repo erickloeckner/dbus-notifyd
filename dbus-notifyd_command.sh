@@ -5,7 +5,7 @@
 # the following commands, whichever one works obviously.
 
 # This works with most distros:
-aplay -q -D hw:0,0 ./ring.wav &
+aplay -q -D plughw:0,0 ./ring.wav &
 
 # Uncomment and use this on new workstations with fedora if aplay is not available:
 # gst-launch-1.0 -q filesrc location=./ring.wav ! wavparse ! audioconvert ! audioresample ! pulsesink device ="alsa_output.pci-0000_0b_00.6.analog-stereo" &
