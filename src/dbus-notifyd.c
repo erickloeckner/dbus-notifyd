@@ -135,7 +135,7 @@ main(int argc, char *argv[]) {
   if (NULL == match_in)
     match_in = "Inbound Call";
   if (NULL == command_in)
-    command_in = "/etc/dbus-notifyd/dbus-notifyd_command.sh";
+    command_in = "./dbus-notifyd_command.sh";
     
   //~ option_t options = {"Inbound Call", "/etc/dbus-notifyd/dbus-notifyd_command.sh"};
   option_t options = {match_in, command_in};
