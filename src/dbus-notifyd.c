@@ -29,8 +29,7 @@ typedef struct{
 static DBusHandlerResult
 monitor_filter_func (DBusConnection     *connection,
                      DBusMessage        *message,
-                     void               *user_data)
-{
+                     void               *user_data) {
   option_t *opt_in = user_data;
 
   print_message (message, opt_in->match, opt_in->command);
@@ -49,8 +48,7 @@ monitor_filter_func (DBusConnection     *connection,
 static dbus_bool_t
 become_monitor (DBusConnection *connection,
     int numFilters,
-    const char * const *filters)
-{
+    const char * const *filters) {
   DBusError error = DBUS_ERROR_INIT;
   DBusMessage *m;
   DBusMessage *r;
@@ -70,12 +68,11 @@ become_monitor (DBusConnection *connection,
         &array_appender))
     tool_oom ("opening string array");
 
-  for (i = 0; i < numFilters; i++)
-    {
-      if (!dbus_message_iter_append_basic (&array_appender, DBUS_TYPE_STRING,
-            &filters[i]))
-        tool_oom ("adding filter to array");
-    }
+  for (i = 0; i < numFilters; i++) {
+    if (!dbus_message_iter_append_basic (&array_appender, DBUS_TYPE_STRING,
+          &filters[i]))
+      tool_oom ("adding filter to array");
+  }
 
   if (!dbus_message_iter_close_container (&appender, &array_appender) ||
       !dbus_message_iter_append_basic (&appender, DBUS_TYPE_UINT32, &zero))
@@ -83,23 +80,18 @@ become_monitor (DBusConnection *connection,
 
   r = dbus_connection_send_with_reply_and_block (connection, m, -1, &error);
 
-  if (r != NULL)
-    {
-      dbus_message_unref (r);
-    }
-  else if (dbus_error_has_name (&error, DBUS_ERROR_UNKNOWN_INTERFACE))
-    {
-      fprintf (stderr, "dbus-monitor: unable to enable new-style monitoring, "
-          "your dbus-daemon is too old. Falling back to eavesdropping.\n");
-      dbus_error_free (&error);
-    }
-  else
-    {
-      fprintf (stderr, "dbus-monitor: unable to enable new-style monitoring: "
-          "%s: \"%s\". Falling back to eavesdropping.\n",
-          error.name, error.message);
-      dbus_error_free (&error);
-    }
+  if (r != NULL) {
+    dbus_message_unref (r);
+  } else if (dbus_error_has_name (&error, DBUS_ERROR_UNKNOWN_INTERFACE)) {
+    fprintf (stderr, "dbus-monitor: unable to enable new-style monitoring, "
+        "your dbus-daemon is too old. Falling back to eavesdropping.\n");
+    dbus_error_free (&error);
+  } else {
+    fprintf (stderr, "dbus-monitor: unable to enable new-style monitoring: "
+        "%s: \"%s\". Falling back to eavesdropping.\n",
+        error.name, error.message);
+    dbus_error_free (&error);
+  }
 
   dbus_message_unref (m);
 
@@ -107,42 +99,69 @@ become_monitor (DBusConnection *connection,
 }
 
 int
-main (int argc, char *argv[])
-{
+main(int argc, char *argv[]) {
   DBusConnection *connection;
   DBusError error;
   DBusBusType type = DBUS_BUS_SESSION;
   DBusHandleMessageFunction filter_func = monitor_filter_func;
   int numFilters = 1;
-  char *filter_string = "eavesdrop=true,type='method_call',interface='org.freedesktop.Notifications',member='Notify'";
-  char * filters[] = {filter_string};
+  char *filter_string = "type='method_call',interface='org.freedesktop.Notifications',member='Notify'";
+  char *filters[] = {filter_string};
   
-  option_t options = {"Inbound Call", "/etc/dbus-notifyd/dbus-notifyd_command.sh"};
+  char *match_in = NULL;
+  char *command_in = NULL;
+  int match_in_flag = 0;
+  int command_in_flag = 0;
+  int i = 0;
+  
+  for (i = 1; i < argc; i++) {
+    char *arg = argv[i];
+    
+    if (!strcmp(arg, "--match") && !match_in_flag) {
+      if (i + 1 < argc) {
+        match_in = argv[i + 1];
+        match_in_flag = 1;
+        i++;
+      }
+    } else if (!strcmp(arg, "--cmd") && !command_in_flag) {
+      if (i + 1 < argc) {
+        command_in = argv[i + 1];
+        command_in_flag = 1;
+        i++;
+      }
+    }
+  }
+  
+  if (NULL == match_in)
+    match_in = "Inbound Call";
+  if (NULL == command_in)
+    command_in = "./dbus-notifyd_command.sh";
+    
+  //~ option_t options = {"Inbound Call", "/etc/dbus-notifyd/dbus-notifyd_command.sh"};
+  option_t options = {match_in, command_in};
   option_t *options_p = &options;
 
 #ifdef DBUS_WIN
-  setvbuf (stdout, NULL, _IONBF, 0);
+  setvbuf(stdout, NULL, _IONBF, 0);
 #else
-  setvbuf (stdout, NULL, _IOLBF, 0);
+  setvbuf(stdout, NULL, _IOLBF, 0);
 #endif
 
-  dbus_error_init (&error);
+  dbus_error_init(&error);
   
-  connection = dbus_bus_get (type, &error);
-  if (connection == NULL)
-    {
-      fprintf (stderr, "Failed to open connection to session bus: %s\n", error.message);
-      dbus_error_free (&error);
-      exit (1);
-    }
+  connection = dbus_bus_get(type, &error);
+  if (connection == NULL) {
+    fprintf(stderr, "Failed to open connection to session bus: %s\n", error.message);
+    dbus_error_free(&error);
+    exit(1);
+  }
 
   dbus_connection_set_route_peer_messages (connection, TRUE);
 
-  if (!dbus_connection_add_filter (connection, filter_func, options_p, NULL))
-    {
-      fprintf (stderr, "Couldn't add filter!\n");
-      exit (1);
-    }
+  if (!dbus_connection_add_filter (connection, filter_func, options_p, NULL)) {
+    fprintf (stderr, "Couldn't add filter!\n");
+    exit (1);
+  }
 
   if (!become_monitor (connection, numFilters, (const char * const *) filters)) {
     if (dbus_error_is_set (&error)) {

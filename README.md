@@ -6,32 +6,29 @@ The purpose is to run a script when a call comes in from the software phone syst
 # INSTALLATION
 
 ```
-sudo wget -O /usr/local/bin/dbus-notifyd https://github.com/erickloeckner/dbus-notifyd/raw/master/dbus-notifyd
+wget https://github.com/erickloeckner/dbus-notifyd/raw/master/dbus-notifyd.tar.gz
 ```
 
 ```
-sudo chmod +x /usr/local/bin/dbus-notifyd
-```
-
-```
-sudo mkdir /etc/dbus-notifyd/
-```
-
-```
-sudo wget -O /etc/dbus-notifyd/dbus-notifyd_command.sh https://github.com/erickloeckner/dbus-notifyd/raw/master/etc/dbus-notifyd_command.sh
-```
-
-```
-sudo chmod +x /etc/dbus-notifyd/dbus-notifyd_command.sh
-```
-
-```
-sudo wget -O /etc/dbus-notifyd/ring.wav https://github.com/erickloeckner/dbus-notifyd/blob/master/etc/ring.wav?raw=true
+tar xvf dbus-notifyd.tar.gz
 ```
 
 # USAGE
 
-Simply let the command ```dbus-notifyd``` run in a spare terminal. The script at /etc/dbus-notifyd/dbus-notifyd_command.sh can be modified to perform a different action, use another audio file of your choosing, etc. After installing, run that script to insure it is playing from the correct audio device. The "-D hw:0,0" sets the device as card 0, device 0. To find the correct settings for your particular setup, run ```aplay -l``` to list the available ouptuts. Here is the output in CentOS 7.6:
+In a spare terminal, simply cd into the dbus-notifyd directory and let the command ```dbus-notifyd``` run. It will also print a timestamp for each incoming call:
+
+```
+[ekloeckner@ekloeckner ~]$ cd /home/ekloeckner/dbus-notifyd/
+```
+
+```
+[ekloeckner@ekloeckner ~/dbus_test/dbus-notifyd]$ ./dbus-notifyd
+DBus Notification Daemon
+Watching for "Inbound Call"
+```
+
+The script in the main directory named dbus-notifyd_command.sh can be modified to perform a different action, use another audio file of your choosing, etc. After installing, run that script to insure it is playing from the correct audio device. The "-D hw:0,0" flag sets the device as card 0, device 0. To find the correct settings for your particular setup, run ```aplay -l``` to list the available ouptuts. Here is the output in CentOS 7.6:
+
 ```
 [ekloeckner@ekloeckner ~/c/dbus-notifyd]$ aplay -l
 **** List of PLAYBACK Hardware Devices ****
